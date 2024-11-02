@@ -185,3 +185,22 @@ export async function fetchLeaderboard() {
   leaderboard = leaderboard.sort((a, b) => b.solves - a.solves)
   return leaderboard
 }
+
+export function isValidDateTime(input) {
+  const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+  return regex.test(input);
+}
+
+export function formatDateString(dateString) {
+  const date = new Date(dateString);
+  
+  const options = {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true, 
+  };
+
+  return date.toLocaleString('en-US', options);
+}

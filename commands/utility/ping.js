@@ -5,5 +5,8 @@ export const data = new SlashCommandBuilder()
 		.setDescription('Replies with Pong!')
 
 export const execute = async (interaction) => {
-  await interaction.reply('Pong!');
+  await interaction.reply({ 
+		content: "Pong!",
+		ephemeral: true,
+	});
 }

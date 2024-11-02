@@ -15,6 +15,21 @@ export async function getAllRows(table) {
   return { data, error }
 }
 
+export async function insertData(table, values) {
+  const { data, error } = await supabase
+    .from(table)
+    .insert(values)
+    .select()
+
+  if (error) {
+    console.error('Error inserting data:', error);
+  } else {
+    console.log('Inserted data:', data);
+  }
+
+  return { data, error }
+}
+
 export async function upsertData(table, values) {
   const { data, error } = await supabase
     .from(table)
@@ -43,3 +58,24 @@ export async function upsertLeetCodeUsername(leetcodeUsername, discordId) {
   return { error }
 }
 
+export async function uploadActivity(title, description, startDatetime, endDatetime) {
+  const values = {
+    "title": title,
+    "description": description,
+    "start_datetime": startDatetime,
+    "end_datetime": endDatetime,
+  }
+
+  const table = "activities"
+
+  const { data, error } = await insertData(table, values)
+
+  return { data, error }
+}
+
+export async function fetchActivities() {
+  const table = "activities"
+  const { data, error } = await getAllRows(table)
+
+  return { data, error }
+}
