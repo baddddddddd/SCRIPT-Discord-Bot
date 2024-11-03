@@ -21,7 +21,7 @@ export const execute = async (interaction) => {
   if (error) {
     if (error.code == 23505) {
       return await interaction.editReply({
-        content: "You already joined this activity :DDDD",
+        content: `You already joined this activity. Use command \`/view_challenges event_id:${eventId}\` to view the challenges.`,
         ephemeral: true,
       })
     }
