@@ -72,14 +72,14 @@ client.login(TOKEN);
 
 
 // Setup endpoint for UptimeRobot
-import express from 'express';
-const app = express();
-const port = 3000;
+// import express from 'express';
+// const app = express();
+// const port = 3000;
 
-app.get('/', (req, res) => {
-  res.send('The slave is running!');
-});
+// app.get('/', (req, res) => {
+//   res.send('The slave is running!');
+// });
 
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server is listening on port ${port}`);
+// });
