@@ -79,3 +79,16 @@ export async function fetchActivities() {
 
   return { data, error }
 }
+
+export async function uploadParticipant(discordId, eventId) {
+  const table = "activity_participants"
+
+  const values = {
+    "discord_id": discordId,
+    "event_id": eventId,
+  }
+  
+  const { data, error } = await insertData(table, values)
+
+  return { data, error }
+}
