@@ -204,3 +204,21 @@ export function formatDateString(dateString) {
 
   return date.toLocaleString('en-US', options);
 }
+
+export function formatLongDateString(dateString) {
+  const date = new Date(dateString);
+
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  };
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
+
+  return formattedDate
+}

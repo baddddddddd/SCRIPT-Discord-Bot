@@ -92,3 +92,47 @@ export async function uploadParticipant(discordId, eventId) {
 
   return { data, error }
 }
+
+export async function fetchActivity(eventId) {
+  let { data, error } = await supabase
+    .from("activities")
+    .select("*, activity_participants(*), leetcode_accounts(*)")
+    .eq("id", eventId)
+
+  
+  if (error) {
+    return { data, error }
+  }
+
+  const details = data[0]
+  const title = details.title
+  const description = details.description
+  const startDatetime = details.start_datetime
+  const endDatetime = details.end_datetime
+
+  let ids = []
+  for (const participant of details.activity_participants) {
+    const discordId = participant.discord_id
+    ids.push(discordId)
+  }
+
+  let participants = []
+  for (const row of details.leetcode_accounts) {
+    const discordId = row.discord_id
+    const leetcodeUsername = row.leetcode_username
+    participants.push({
+      discordId: discordId,
+      leetcodeUsername: leetcodeUsername,
+    })
+  }
+
+  data = {
+    title: title,
+    description: description,
+    startDatetime: startDatetime,
+    endDatetime: endDatetime,
+    participants: participants,
+  }
+
+  return { data, error }
+}
