@@ -250,3 +250,21 @@ export async function fetchChallengeDetails(titleSlug) {
   
   return details
 }
+
+export function toLocalTime(dateString) {
+  const utcDateObject = new Date(dateString);
+
+  const utcTimestamp = utcDateObject.getTime();
+
+  const localDateObject = new Date(utcTimestamp - (new Date()).getTimezoneOffset() * 60000);
+  return localDateObject
+}
+
+export function getCurrentTime() {
+  const utcDateObject = new Date();
+
+  const utcTimestamp = utcDateObject.getTime();
+
+  const localDateObject = new Date(utcTimestamp - (new Date()).getTimezoneOffset() * 60000);
+  return localDateObject
+}

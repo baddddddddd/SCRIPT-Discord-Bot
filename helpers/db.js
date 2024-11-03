@@ -98,9 +98,8 @@ export async function fetchActivity(eventId) {
     .from("activities")
     .select("*, activity_participants(*), leetcode_accounts(*)")
     .eq("id", eventId)
-
   
-  if (error) {
+  if (error || data.length == 0) {
     return { data, error }
   }
 
@@ -150,5 +149,15 @@ export async function uploadChallenge(eventId, challengeId, titleSlug, displayTi
 
   const { data, error } = await insertData(table, values)
 
+  return { data, error }
+}
+
+export async function fetchChallenges(eventId) {
+  const { data, error } = await supabase
+    .from("activity_challenges")
+    .select("*")
+    .eq("event_id", eventId)
+
+    
   return { data, error }
 }
