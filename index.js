@@ -7,9 +7,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Setup Discord Bot
-const TOKEN = process.env.DISCORD_TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID;
+
+let TOKEN = null
+let CLIENT_ID = null
+let GUILD_ID = null
+
+if (process.env.DEV !== 'true') {
+	console.log("Launching production bot...")
+	TOKEN = process.env.DISCORD_TOKEN
+	CLIENT_ID = process.env.CLIENT_ID
+	GUILD_ID = process.env.GUILD_ID
+} else {
+	console.log("Launching development bot...")
+	TOKEN = process.env.DISCORD_TOKEN_DEV
+	CLIENT_ID = process.env.CLIENT_ID_DEV
+	GUILD_ID = process.env.GUILD_ID_DEV
+}
 
 import { Client, Collection, Events, GatewayIntentBits } from 'discord.js'
 import fs from 'fs';

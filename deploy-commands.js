@@ -6,10 +6,21 @@ configDotenv()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Now you can access the variables from process.env
-const TOKEN = process.env.DISCORD_TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID;
+let TOKEN = null
+let CLIENT_ID = null
+let GUILD_ID = null
+
+if (process.env.DEV !== 'true') {
+	console.log("Building production bot...")
+	TOKEN = process.env.DISCORD_TOKEN
+	CLIENT_ID = process.env.CLIENT_ID
+	GUILD_ID = process.env.GUILD_ID
+} else {
+	console.log("Building development bot...")
+	TOKEN = process.env.DISCORD_TOKEN_DEV
+	CLIENT_ID = process.env.CLIENT_ID_DEV
+	GUILD_ID = process.env.GUILD_ID_DEV
+}
 
 import { REST, Routes } from 'discord.js'
 import fs from 'fs'
