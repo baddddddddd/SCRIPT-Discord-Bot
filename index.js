@@ -6,7 +6,7 @@ configDotenv()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Now you can access the variables from process.env
+// Setup Discord Bot
 const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
@@ -69,3 +69,17 @@ client.once(Events.ClientReady, readyClient => {
 setInterval(updateLeaderboard, 10 * 60 * 1000);
 
 client.login(TOKEN);
+
+
+// Setup endpoint for UptimeRobot
+import express from 'express';
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('The slave is running!');
+});
+
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});
