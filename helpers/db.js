@@ -136,3 +136,19 @@ export async function fetchActivity(eventId) {
 
   return { data, error }
 }
+
+export async function uploadChallenge(eventId, challengeId, titleSlug, displayTitle, difficulty, points) {
+  const table = "activity_challenges"
+  const values = {
+    "event_id": eventId,
+    "challenge_id": challengeId,
+    "title_slug": titleSlug,
+    "display_title": displayTitle,
+    "difficulty": difficulty,
+    "points": points,
+  }
+
+  const { data, error } = await insertData(table, values)
+
+  return { data, error }
+}

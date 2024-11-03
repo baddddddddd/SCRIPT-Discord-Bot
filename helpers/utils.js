@@ -1,5 +1,22 @@
 import { getAllRows, upsertData } from "./db.js";
 
+
+const LEETCODE_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0',
+  'Accept': '*/*',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br, zstd',
+  'content-type': 'application/json',
+  'Origin': 'https://leetcode.com',
+  'DNT': '1',
+  'Connection': 'keep-alive',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-origin',
+  'Sec-GPC': '1',
+  'TE': 'trailers'
+}
+
 export const isValidUrl = (string) => {
   try {
       new URL(string);
@@ -31,21 +48,7 @@ export const getUsernameFromUrl = (url) => {
 export const getUserPublicProfile = async (username) => {
   const response = await fetch('https://leetcode.com/graphql/', {
     method: 'POST',
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0',
-      'Accept': '*/*',
-      'Accept-Language': 'en-US,en;q=0.5',
-      'Accept-Encoding': 'gzip, deflate, br, zstd',
-      'content-type': 'application/json',
-      'Origin': 'https://leetcode.com',
-      'DNT': '1',
-      'Connection': 'keep-alive',
-      'Sec-Fetch-Dest': 'empty',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Site': 'same-origin',
-      'Sec-GPC': '1',
-      'TE': 'trailers'
-    },
+    headers: LEETCODE_HEADERS,
     body: JSON.stringify({
       'query': '\n    query userPublicProfile($username: String!) {\n  matchedUser(username: $username) {\n    contestBadge {\n      name\n      expired\n      hoverText\n      icon\n    }\n    username\n    githubUrl\n    twitterUrl\n    linkedinUrl\n    profile {\n      ranking\n      userAvatar\n      realName\n      aboutMe\n      school\n      websites\n      countryName\n      company\n      jobTitle\n      skillTags\n      postViewCount\n      postViewCountDiff\n      reputation\n      reputationDiff\n      solutionCount\n      solutionCountDiff\n      categoryDiscussCount\n      categoryDiscussCountDiff\n    }\n  }\n}\n    ',
       'variables': {
@@ -61,21 +64,7 @@ export const getUserPublicProfile = async (username) => {
 export async function getStats(username) {
   const response = await fetch('https://leetcode.com/graphql/', {
     method: 'POST',
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0',
-      'Accept': '*/*',
-      'Accept-Language': 'en-US,en;q=0.5',
-      'Accept-Encoding': 'gzip, deflate, br, zstd',
-      'content-type': 'application/json',
-      'Origin': 'https://leetcode.com',
-      'DNT': '1',
-      'Connection': 'keep-alive',
-      'Sec-Fetch-Dest': 'empty',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Site': 'same-origin',
-      'Sec-GPC': '1',
-      'TE': 'trailers'
-    },
+    headers: LEETCODE_HEADERS,
     body: JSON.stringify({
       'query': '\n    query userSessionProgress($username: String!) {\n  allQuestionsCount {\n    difficulty\n    count\n  }\n  matchedUser(username: $username) {\n    submitStats {\n      acSubmissionNum {\n        difficulty\n        count\n        submissions\n      }\n      totalSubmissionNum {\n        difficulty\n        count\n        submissions\n      }\n    }\n  }\n}\n    ',
       'variables': {
@@ -221,4 +210,43 @@ export function formatLongDateString(dateString) {
   const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
 
   return formattedDate
+}
+
+export function extractTitleSlug(url) {
+  if (!isValidUrl(url)) {
+    return null
+  }
+
+  const parsedUrl = new URL(url);
+
+  if (parsedUrl.hostname !== 'leetcode.com') {
+    throw new Error("URL is not from leetcode.com");
+  }
+
+  const pathSegments = parsedUrl.pathname.split('/');
+
+  if (pathSegments[1] === 'problems') {
+    return pathSegments[2];
+  } else {
+    return null;
+  }
+}
+
+export async function fetchChallengeDetails(titleSlug) {
+  const response = await fetch('https://leetcode.com/graphql/', {
+    method: 'POST',
+    headers: LEETCODE_HEADERS,
+    body: JSON.stringify({
+      'query': '\n    query questionTitle($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    questionId\n    questionFrontendId\n    title\n    titleSlug\n    isPaidOnly\n    difficulty\n    likes\n    dislikes\n    categoryTitle\n  }\n}\n    ',
+      'variables': {
+        'titleSlug': titleSlug
+      },
+      'operationName': 'questionTitle'
+    })
+  });
+
+  const json = await response.json()
+  const details = json.data.question
+  
+  return details
 }
