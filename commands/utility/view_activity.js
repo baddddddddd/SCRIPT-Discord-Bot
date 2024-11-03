@@ -18,6 +18,14 @@ export const execute = async (interaction) => {
 
   const { data, error } = await fetchActivity(eventId)
 
+  if (data?.length === 0) {
+    return await interaction.editReply({
+      content: `That Event ID does not exist! Use \`/show_activities\` to list the Event IDs of activities.`,
+      ephemeral: true,
+    })
+  }
+
+
   if (error) {
     return await interaction.editReply({
       content: "Failed to view activity details. Please try again later.",
