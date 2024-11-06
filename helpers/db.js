@@ -2,6 +2,7 @@ import { configDotenv } from 'dotenv';
 configDotenv()
 
 import { createClient } from '@supabase/supabase-js';
+import { toUtcTime } from './utils.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY;
@@ -62,8 +63,8 @@ export async function uploadActivity(title, description, startDatetime, endDatet
   const values = {
     "title": title,
     "description": description,
-    "start_datetime": startDatetime,
-    "end_datetime": endDatetime,
+    "start_datetime": toUtcTime(startDatetime).toISOString(),
+    "end_datetime": toUtcTime(endDatetime).toISOString(),
   }
 
   const table = "activities"

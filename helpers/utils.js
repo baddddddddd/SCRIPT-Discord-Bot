@@ -189,9 +189,11 @@ export function formatDateString(dateString) {
       hour: 'numeric',
       minute: 'numeric',
       hour12: true, 
+      timeZone: 'Asia/Manila'
   };
 
-  return date.toLocaleString('en-US', options);
+  const formattedDate = date.toLocaleString('en-US', options)
+  return formattedDate;
 }
 
 export function formatLongDateString(dateString) {
@@ -204,7 +206,8 @@ export function formatLongDateString(dateString) {
     weekday: "long",
     hour: "numeric",
     minute: "2-digit",
-    hour12: true
+    hour12: true,
+    timeZone: 'Asia/Manila'
   };
 
   const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
@@ -252,19 +255,27 @@ export async function fetchChallengeDetails(titleSlug) {
 }
 
 export function toLocalTime(dateString) {
-  const utcDateObject = new Date(dateString);
+  const originalDate = new Date(dateString + ' GMT+0800'); 
 
-  const utcTimestamp = utcDateObject.getTime();
+  const targetTimezone = 'UTC'; 
 
-  const localDateObject = new Date(utcTimestamp - (new Date()).getTimezoneOffset() * 60000);
-  return localDateObject
+  const targetDate = new Date(originalDate.toLocaleString('en-US', { timeZone: targetTimezone }));
+
+  return targetDate
+}
+
+export function toUtcTime(dateString) {
+  const date = new Date(dateString + " +08:00")
+  return date;
 }
 
 export function getCurrentTime() {
-  const utcDateObject = new Date();
+  const now = new Date()
 
-  const utcTimestamp = utcDateObject.getTime();
+  const offsetInMs = 8 * 60 * 60 * 1000
 
-  const localDateObject = new Date(utcTimestamp - (new Date()).getTimezoneOffset() * 60000);
-  return localDateObject
+  const datePH = new Date(now.getTime() + offsetInMs)
+
+  console.log(datePH)
+  return datePH
 }

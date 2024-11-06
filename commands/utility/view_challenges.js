@@ -43,9 +43,9 @@ export const execute = async (interaction) => {
   }
 
   // Check current time if it is during the event duration
-  const startDatetime = toLocalTime(new Date(data.startDatetime))
-  const endDatetime = toLocalTime(new Date(data.endDatetime))
-  const currentDatetime = getCurrentTime()
+  const startDatetime = new Date(data.startDatetime)
+  const endDatetime = new Date(data.endDatetime)
+  const currentDatetime = new Date()
 
   if (currentDatetime < startDatetime) {
     return await interaction.editReply({
