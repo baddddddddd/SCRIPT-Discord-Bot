@@ -23,13 +23,22 @@ export const execute = async (interaction) => {
   let descriptions = ['----']
   let datetimes = ['----']
   for (const row of data) {
-    ids.push(row.id)
-    titles.push(row.title)
-    descriptions.push(row.description)
+    let id = row.id
+    let title = row.title
+    let description = row.description
 
     const start = formatDateString(row.start_datetime)
     const end = formatDateString(row.end_datetime)
-    const datetime = `${start}\u3000-\u3000${end}`
+    let datetime = `${start} - ${end}`
+
+    if (title.length >= 34) {
+      id += '\n'
+      datetime += '\n'  
+    }
+
+    ids.push(id)
+    titles.push(title)
+    descriptions.push(description)
     datetimes.push(datetime)
   }
 

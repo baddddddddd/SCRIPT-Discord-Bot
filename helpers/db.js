@@ -76,7 +76,10 @@ export async function uploadActivity(title, description, startDatetime, endDatet
 
 export async function fetchActivities() {
   const table = "activities"
-  const { data, error } = await getAllRows(table)
+  const { data, error } = await supabase
+    .from(table)
+    .select("*")
+    .order("start_datetime")
 
   return { data, error }
 }
@@ -160,5 +163,44 @@ export async function fetchChallenges(eventId) {
     .eq("event_id", eventId)
 
     
+  return { data, error }
+}
+
+export async function getLeetcodeUsername(discordId) {
+  const { data, error } = await supabase
+    .from('leetcode_accounts')
+    .select('leetcode_username')
+    .eq("discord_id", discordId)
+    .single()
+
+  return { data, error }
+}
+
+export async function uploadActivitySolves(solves) {
+  let values = []
+
+  for (const solve of solves) {
+    values.push({
+      "activity_challenge_id": solve.activityChallengeId,
+      "discord_id": solve.discordId,
+      "submission_id": solve.submissionId,
+      "solved_on": solve.solvedOn.toISOString(),
+    })
+  }
+
+  const { data, error } = await supabase
+    .from("activity_solves")
+    .upsert(values, { ignoreDuplicates: true })
+
+  return { data, error }
+}
+
+export async function getActivitySolves(eventId, discordId) {
+  const { data, error } = await supabase
+    .from("activity_solves")
+    .select("*, activity_challenges(*)")
+    .eq("activity_challenges.event_id", eventId)
+    .eq("discord_id", discordId)
+
   return { data, error }
 }

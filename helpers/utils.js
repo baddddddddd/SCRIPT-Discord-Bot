@@ -279,3 +279,21 @@ export function getCurrentTime() {
   console.log(datePH)
   return datePH
 }
+
+export async function getRecentSubmissions(username) {
+  const response = await fetch('https://leetcode.com/graphql/', {
+    method: 'POST',
+    headers: LEETCODE_HEADERS,
+    body: JSON.stringify({
+      'query': '\n    query recentAcSubmissions($username: String!, $limit: Int!) {\n  recentAcSubmissionList(username: $username, limit: $limit) {\n    id\n    title\n    titleSlug\n    timestamp\n  }\n}\n    ',
+      'variables': {
+        'username': username,
+        'limit': 20
+      },
+      'operationName': 'recentAcSubmissions'
+    })
+  });
+
+  const json = await response.json()
+  return json
+}

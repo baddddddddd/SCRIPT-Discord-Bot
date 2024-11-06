@@ -28,7 +28,7 @@ export const execute = async (interaction) => {
 
     else if (error.code == 23503) {
       return await interaction.editReply({
-        content: "That activity does not exist >:(",
+        content: "Failed to join the activity. Either the activity does not exist, or you still haven't linked your LeetCode account using `/set_leetcode`",
         ephemeral: true,
       })
     }

@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { fetchActivity, fetchChallenges } from '../../helpers/db.js';
-import { getCurrentTime, toLocalTime } from '../../helpers/utils.js';
+import { fetchActivity, fetchChallenges, getActivitySolves, getLeetcodeUsername, uploadActivitySolves } from '../../helpers/db.js';
+import { formatDateString, getCurrentTime, getRecentSubmissions, toLocalTime, toUtcTime } from '../../helpers/utils.js';
 
 export const data = new SlashCommandBuilder()
   .setName('view_challenges')
@@ -19,6 +19,14 @@ export const execute = async (interaction) => {
   const eventId = interaction.options.getInteger("event_id")
 
   let { data, error }  = await fetchActivity(eventId)
+
+  if (error) {
+    console.error(error)
+    return await interaction.editReply({
+      content: "Failed to fetch activity. Please try again later.",
+      ephemeral: true,
+    })
+  }
 
   if (data?.length === 0) {
     return await interaction.editReply({
@@ -62,21 +70,104 @@ export const execute = async (interaction) => {
   }
 
   const activity = data;
-  // Fetch challenge set
-  ({ data, error } = await fetchChallenges(eventId))
+
+  ({ data, error } = await fetchChallenges(eventId));
+
+
+  const { data: username_data, error: err } = await getLeetcodeUsername(discordId)
+  const username = username_data.leetcode_username
+
+  const json = await getRecentSubmissions(username)
+
+  if (!json.data || !json.data.recentAcSubmissionList) {
+    return await interaction.editReply({
+      content: "Failed to get recent submissions. Please try again later.",
+      ephemeral: true,
+    })
+  }
+
+  // TK
+  const submissions = json.data.recentAcSubmissionList;
+
+  let mappedChallenges = {}
+
+  for (const challenge of data) {
+    const titleSlug = challenge.title_slug
+
+    mappedChallenges[titleSlug] = challenge
+  }
+
+  let recentSolves = []
+
+  for (const submission of submissions) {
+    if (submission.titleSlug in mappedChallenges) {
+      let timeOfSolve = new Date(new Number(submission.timestamp) * 1000)
+
+      if (timeOfSolve < startDatetime) {
+        continue
+      }
+
+      recentSolves.push({
+        activityChallengeId: mappedChallenges[submission.titleSlug].id,
+        discordId: discordId,
+        submissionId: submission.id,
+        solvedOn: timeOfSolve,
+      })
+    }
+
+  }
+
+  const { data: uploadData, error: uploadErr } = await uploadActivitySolves(recentSolves)
+
+  if (uploadErr) {
+    console.error(uploadErr)
+    return await interaction.editReply({
+      content: "Failed to update progress on activity. Please try again later.",
+      ephemeral: true
+    })
+  }
+
+  const { data: solvesData, error: solvesError } = await getActivitySolves(eventId, discordId)
+
+  let solveSlugs = new Set()
+  let userPoints = 0
+  let lastSolved = null
+
+  for (const solve of solvesData) {
+    const challenge = solve.activity_challenges
+    const timeOfSolve = new Date(solve.solved_on)
+
+    solveSlugs.add(challenge.title_slug)
+    userPoints += challenge.points
+
+    if (lastSolved == null || timeOfSolve > lastSolved) {
+      lastSolved = timeOfSolve
+    }
+  }
+
+  if (solvesError) {
+    console.error(solvesError)
+    return await interaction.editReply({
+      content: "Failed to fetch progress on activity. Please try again later.",
+      ephemeral: true,
+    })
+  }
 
   let labels = ['----']
   let titles = ['----']
   let points = ['----']
+  let overallPoints = 0
 
   for (let i = 0; i < data.length; i++) {
     const challenge = data[i]
     const title = challenge.display_title
     const link = `https://leetcode.com/problems/${challenge.title_slug}/`
     const point = challenge.points
+    const status = solveSlugs.has(challenge.title_slug) ? '✅' : '\u3000'
+    overallPoints += point
 
     const displayTitle = `[${title}](${link})`
-    labels.push(i + 1)
+    labels.push(status)
     titles.push(displayTitle)
     points.push(point)
 
@@ -88,10 +179,15 @@ export const execute = async (interaction) => {
     .setDescription(activity.description)
 
   embed.addFields(
-    { name: '#\u3000', value: labels.join('\u3000\n'), inline: true },
+    { name: 'Status\u3000', value: labels.join('\u3000\n'), inline: true },
     { name: 'Challenge\u3000', value: titles.join('\u3000\n'), inline: true },
     { name: 'Points\u3000', value: points.join('\u3000\n'), inline: true },
+    { name: 'Score\u3000', value: `${userPoints} / ${overallPoints}`, inline: true },
   );  
+
+  if (lastSolved != null) {
+    embed.addFields({ name: 'Last Solve\u3000', value: formatDateString(lastSolved), inline: true })
+  }
 
   return await interaction.editReply({ 
 		embeds: [embed],
