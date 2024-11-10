@@ -25,7 +25,7 @@ export async function insertData(table, values) {
   if (error) {
     console.error('Error inserting data:', error);
   } else {
-    console.log('Inserted data:', data);
+    // console.log('Inserted data:', data);
   }
 
   return { data, error }
@@ -40,7 +40,7 @@ export async function upsertData(table, values) {
   if (error) {
     console.error('Error upserting data:', error);
   } else {
-    console.log('Upserted data:', data);
+    // console.log('Upserted data:', data);
   }
 
   return { data, error }

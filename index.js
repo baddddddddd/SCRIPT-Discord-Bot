@@ -28,6 +28,7 @@ import { Client, Collection, Events, GatewayIntentBits } from 'discord.js'
 import fs from 'fs';
 import path from 'path';
 import { updateLeaderboard } from './helpers/utils.js';
+import { log } from 'util';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -62,7 +63,28 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 
 	try {
+		const formatDate = () => {
+			const now = new Date();
+			const options = { 
+				month: 'short', 
+				day: '2-digit', 
+				hour: '2-digit', 
+				minute: '2-digit', 
+				second: '2-digit',
+				hour12: false, 
+				timeZone: 'Asia/Manila'
+			};
+			return now.toLocaleString('en-US', options).replace(',', '');
+		};
+		
+		let logMessage = `[${formatDate()}] Executing /${interaction.commandName} by ${interaction.user.username}`
+		console.log(logMessage)
+
 		await command.execute(interaction);
+
+		logMessage = `[${formatDate()}] Finished /${interaction.commandName} by ${interaction.user.username}`
+		console.log(logMessage)
+
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
