@@ -6,10 +6,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node deploy-commands.js && node index.js",
+    "prod": "node deploy-commands.js && node index.js",
     "dev": "DEV=true node deploy-commands.js && DEV=true node index.js",
     "build": "node deploy-commands.js",
-    "run": "node runner.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
