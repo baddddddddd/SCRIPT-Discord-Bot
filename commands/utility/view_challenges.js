@@ -134,8 +134,6 @@ export const execute = async (interaction) => {
   let userPoints = 0
   let lastSolved = null
 
-  console.log(solvesData)
-
   for (const solve of solvesData) {
     if (!solve.activity_challenges) {
       continue
