@@ -1,6 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { fetchActivity, fetchChallenges, getActivitySolves, getLeetcodeUsername, uploadActivitySolves } from '../../helpers/db.js';
 import { formatDateString, getCurrentTime, getRecentSubmissions, toLocalTime, toUtcTime } from '../../helpers/utils.js';
+import { isExecutive } from '../../helpers/constants.js';
 
 export const data = new SlashCommandBuilder()
   .setName('view_challenges')
@@ -43,7 +44,7 @@ export const execute = async (interaction) => {
     }
   }
 
-  if (!isParticipant) {
+  if (!isParticipant && !isExecutive(discordId)) {
     return await interaction.editReply({
       content: `You are not yet a participant for this activity. Please join using \`/join_activity event_id:${eventId}\` to continue.`,
       ephemeral: true,
@@ -55,14 +56,14 @@ export const execute = async (interaction) => {
   const endDatetime = new Date(data.endDatetime)
   const currentDatetime = new Date()
 
-  if (currentDatetime < startDatetime) {
+  if (currentDatetime < startDatetime && !isExecutive(discordId)) {
     return await interaction.editReply({
       content: `This event has not started yet. Viewing challenges is disabled until then.`,
       ephemeral: true,
     })
   }
 
-  if (currentDatetime > endDatetime) {
+  if (currentDatetime > endDatetime && !isExecutive(discordId)) {
     return await interaction.editReply({
       content: `This event has ended. Thank you for participating!`,
       ephemeral: true,
